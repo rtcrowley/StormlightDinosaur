@@ -1,5 +1,5 @@
 # StormlightDinosaur
-A Defensive C# app with the goal to give the user a basic intrusion detection overview of their Windows system. Simply for standalone Windows machines.
+A Defensive C# app with the goal to give the user a basic intrusion detection overview of their Windows system. Simply for standalone Windows machines - targeted towards Windows 10. Build as **x64** and run as Administrator.
 
 Runs through the following:
 
@@ -12,5 +12,4 @@ Runs through the following:
 
 ![alt text](https://rtcrowley.github.io/stdino.png?raw=true "execute")
 
-**NOTES:** Targeted towards Windows 10 workstations, build as x64 and run as Administrator
 
