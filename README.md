@@ -7,7 +7,10 @@ Runs through the following:
 * Lsass & svchost process integrity
 * Scheduled task & Service anomalies
 * Active BITS jobs
-* Potential persistence via WMI event subscriptions & Netsh DLL helpers
+* Accessibility Feature Abuse
+* Application Shimming
+* WMI event subscriptions
+* Netsh DLL helpers
 * More to come...
 
 ![alt text](https://rtcrowley.github.io/stdino.png?raw=true "execute")
