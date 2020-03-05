@@ -38,15 +38,15 @@ namespace StormlightDinosaur
             Console.WriteLine(@"      ___  |      ;                            ____ '~--.~.");
             Console.WriteLine(@"____       ;      ;                               _____  } |");
             Console.WriteLine(@"        ___=       \ ___ __     __..-...__           ___/__/__");
-            Console.WriteLine(@"           :        =_     _.-~~          ~~--.__");
+            Console.WriteLine(@" creosote  :        =_     _.-~~          ~~--.__");
             Console.WriteLine(@"      _____ \         ~-+-~                   ___~=_______");
-            Console.WriteLine(@"__         ~'#~~ == ...______ __ ___ _--~~--_     creosote");
+            Console.WriteLine(@"__         ~'#~~ == ...______ __ ___ _--~~--_             ");
             Console.ForegroundColor = ConsoleColor.Yellow;
             Console.WriteLine(@"           ____  _");
             Console.WriteLine(@"          / __ \(_)___  ____  _________ ___  _______");
             Console.WriteLine(@"         / / / / / __ \/ __ \/ ___/ __ `/ / / / ___/");
             Console.WriteLine(@"        / /_/ / / / / / /_/ (__  ) /_/ / /_/ / / ");
-            Console.WriteLine(@"       /_____/_/_/ /_/\____/____/\__,_/\__,_/_/     ");
+            Console.WriteLine(@"       /_____/_/_/ /_/\____/____/\__,_/\__,_/_/   v1.1  ");
             Console.WriteLine(" ");
             Console.ResetColor();
 
@@ -204,11 +204,9 @@ namespace StormlightDinosaur
                     if (chkItasks == true)
                     {
                         Console.ForegroundColor = ConsoleColor.Red;
-                        Console.WriteLine("    [-] Detected interesting String in task: ");
+                        Console.WriteLine("      [-] Detected interesting String in task: ");
                         Console.ForegroundColor = ConsoleColor.DarkRed;
                         Console.WriteLine(sched_out);
-                        //Console.WriteLine(schXm);
-                        Console.WriteLine("-----------------------");
                     }
                 }
                 ////////////////
@@ -217,11 +215,9 @@ namespace StormlightDinosaur
                 if (bPs == true)
                 {
                     Console.ForegroundColor = ConsoleColor.Red;
-                    Console.WriteLine("    [-] PowerShell Detected - task info: ");
-                    Console.WriteLine("-----------------------");
+                    Console.WriteLine("      [-] PowerShell Detected - task info: ");
                     Console.WriteLine(sched_out);
                     //Console.WriteLine(schXm);
-                    Console.WriteLine("-----------------------");
                 }
                 ////////////////////////////
                 // Outside Microsoft folder
@@ -486,7 +482,7 @@ namespace StormlightDinosaur
             };
 
             string[] safeSvcPro = new string[] {
-                "C:\\Program Files\\", "C:\\Program Files (x86)\\", "C:\\Windows\\", "C:\\WINDOWS\\"
+                "C:\\Program Files\\", "C:\\Program Files (x86)\\", "C:\\Windows\\", "C:\\WINDOWS\\", "c:\\Program Files\\"
             };
 
             Console.ForegroundColor = ConsoleColor.Cyan;
@@ -521,7 +517,8 @@ namespace StormlightDinosaur
                     if (imgPath != null)
                     {
                         var ipa = imgPath.ToString();
-                        if (safeSvc.Any(ipa.Contains))
+                        //if (safeSvc.Any(ipa.Contains))
+                        if(safeSvc.Any(ipa.Contains))
                         { /*Console.WriteLine("      [+] Sucess: " + subkeyName);*/
                         }
                         else
@@ -540,9 +537,7 @@ namespace StormlightDinosaur
                         }
                     }
                 }
-
             }
-
         }
 
         /// ////////////////////////////////////////////
@@ -669,44 +664,274 @@ namespace StormlightDinosaur
             }
         }
 
+
+
         /// ////////////////////////////////////////////
-        /// ////////////////////////////////////////////     
-        /// ////    Codename: StormlightDinosaur    ////
+        /// ////////////////////////////////////////////
+        /// ////   IFEO Check          /////////////////
         /// ////////////////////////////////////////////
         /// ////////////////////////////////////////////
-        static void Main(string[] args)
+        public static void IFEO()
         {
+            String registryKey = @"SOFTWARE\Wow6432Node\Microsoft\Windows NT\CurrentVersion\Image File Execution Options";
+            
+            using (Microsoft.Win32.RegistryKey key = Registry.LocalMachine.OpenSubKey(registryKey))
+            {
+                Console.ForegroundColor = ConsoleColor.Cyan;
+                Console.WriteLine("   [+] Checking IFEO SubKeys");
+                var dnum = 0;
+                var gnum = 0;
+                // Store each IFEO subkey NAME in subkeyName
+                foreach (String subkeyName in key.GetSubKeyNames())
+                {
+                    String ikey = @"SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\" + subkeyName;
+                    //Get the values of each subkey and store in vkey
+                    using (Microsoft.Win32.RegistryKey vkey = Registry.LocalMachine.OpenSubKey(ikey))
+                    {
+                        Console.ForegroundColor = ConsoleColor.Cyan;
+                        //Look in each subkey value for 'debugger' and 'globalflag'
+                        foreach (var subVals in vkey.GetValueNames())
+                        {
+                            if (subVals == "Debugger")
+                            {
+                                Console.ForegroundColor = ConsoleColor.Red;
+                                Console.WriteLine("      [-] 'Debugger' Value found in:");
+                                Console.ForegroundColor = ConsoleColor.DarkRed;
+                                Console.WriteLine("          " + vkey);
+                                dnum = dnum + 1;
+                            }
+
+                            if (subVals == "GlobalFlag")
+                            {
+                                Console.ForegroundColor = ConsoleColor.Red;
+                                Console.WriteLine("      [-] 'GlobalFlag' Value found in:");
+                                Console.ForegroundColor = ConsoleColor.DarkRed;
+                                Console.WriteLine("          " + vkey);
+                                gnum = gnum + 1;
+                            }
+                        }                       
+                    }
+                }
+
+                if (dnum == 0)
+                {
+                    Console.ForegroundColor = ConsoleColor.DarkCyan;
+                    Console.WriteLine("      [+] Success - 'Debugger' Value not found");
+                }
+                if (gnum == 0)
+                {
+                    Console.ForegroundColor = ConsoleColor.DarkCyan;
+                    Console.WriteLine("      [+] Success - 'GlobalFlag' Value not found");
+                }
+
+            }
+
+            String registryKeyWOW = @"SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options";
+            using (Microsoft.Win32.RegistryKey keyWOW = Registry.LocalMachine.OpenSubKey(registryKeyWOW))
+            {
+                Console.ForegroundColor = ConsoleColor.Cyan;
+                Console.WriteLine("   [+] Checking Wow6432Node IFEO SubKeys");
+                var dnumWOW = 0;
+                var gnumWOW = 0;
+                // Store each IFEO subkey NAME in subkeyName
+                foreach (String subkeyNameWOW in keyWOW.GetSubKeyNames())
+                {
+                    String ikeyWOW = @"SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\" + subkeyNameWOW;
+                    //Get the values of each subkey and store in vkey
+                    using (Microsoft.Win32.RegistryKey vkeyWOW = Registry.LocalMachine.OpenSubKey(ikeyWOW))
+                    {
+                        Console.ForegroundColor = ConsoleColor.Cyan;
+                        //Look in each subkey value for 'debugger' and 'globalflag'
+                        foreach (var subValsWOW in vkeyWOW.GetValueNames())
+                        {
+                            if (subValsWOW == "Debugger")
+                            {
+                                Console.ForegroundColor = ConsoleColor.Red;
+                                Console.WriteLine("      [-] 'Debugger' Value found in:");
+                                Console.ForegroundColor = ConsoleColor.DarkRed;
+                                Console.WriteLine("          " + vkeyWOW);
+                                dnumWOW = dnumWOW + 1;
+                            }
+
+                            if (subValsWOW == "GlobalFlag")
+                            {
+                                Console.ForegroundColor = ConsoleColor.Red;
+                                Console.WriteLine("      [-] 'GlobalFlag' Value found in:");
+                                Console.ForegroundColor = ConsoleColor.DarkRed;
+                                Console.WriteLine("          " + vkeyWOW);
+                                gnumWOW = gnumWOW + 1;
+                            }
+                        }
+                    }
+                }
+
+                if (dnumWOW == 0)
+                {
+                    Console.ForegroundColor = ConsoleColor.DarkCyan;
+                    Console.WriteLine("      [+] Success - Wow6432Node 'Debugger' Value not found");
+                }
+                if (gnumWOW == 0)
+                {
+                    Console.ForegroundColor = ConsoleColor.DarkCyan;
+                    Console.WriteLine("      [+] Success - Wow6432Node 'GlobalFlag' Value not found");
+                }
+
+            }
+
+            String silentKey = @"SOFTWARE\Microsoft\Windows NT\CurrentVersion\SilentProcessExit";
+            Console.ForegroundColor = ConsoleColor.Cyan;
+            Console.WriteLine("   [+] Checking for SilentProcessExit Key");
+            using (Microsoft.Win32.RegistryKey skey = Registry.LocalMachine.OpenSubKey(silentKey))
+            {
+                if (skey == null)
+                {
+                    Console.ForegroundColor = ConsoleColor.DarkCyan;
+                    Console.WriteLine("      [+] Success - SilentProcessExit SubKey does not exist");
+                }
+                else
+                {
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine("      [-] SilentProcessExit SubKey Found!");
+                    foreach (String skeyName in skey.GetSubKeyNames())
+                    {
+                        Console.ForegroundColor = ConsoleColor.DarkRed;
+                        Console.WriteLine("         " + skey);
+                    }
+                }
+
+            }
+            String silentKeyWOW = @"SOFTWARE\Wow6432Node\Microsoft\Windows NT\CurrentVersion\SilentProcessExit";
+            Console.ForegroundColor = ConsoleColor.Cyan;
+            Console.WriteLine("   [+] Checking for Wow6432Node SilentProcessExit Key");
+            using (Microsoft.Win32.RegistryKey skeyWOW = Registry.LocalMachine.OpenSubKey(silentKeyWOW))
+            {
+                if (skeyWOW == null)
+                {
+                    Console.ForegroundColor = ConsoleColor.DarkCyan;
+                    Console.WriteLine("      [+] Success - Wow6432Node SilentProcessExit SubKey does not exist");
+                }
+                else
+                {
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine("      [-] Wow6432Node SilentProcessExit SubKey Found!");
+                    foreach (String skeyNameWOW in skeyWOW.GetSubKeyNames())
+                    {
+                        Console.ForegroundColor = ConsoleColor.DarkRed;
+                        Console.WriteLine("         " + skeyWOW);
+                    }
+                }
+
+            }
+        }
+
+
+        /// ////////////////////////////////////////////
+        /// ////////////////////////////////////////////
+        /// ////   App Shimming        /////////////////
+        /// ////////////////////////////////////////////
+        /// ////////////////////////////////////////////
+        public static void AppShims()
+        {
+            String appKey = @"SOFTWARE\Microsoft\Windows NT\CurrentVersion\AppCompatFlags\Custom";
+            Console.ForegroundColor = ConsoleColor.Cyan;
+            Console.WriteLine("   [+] Checking 'Custom' SubKey entries");
+            using (Microsoft.Win32.RegistryKey skey = Registry.LocalMachine.OpenSubKey(appKey))
+            {
+                if (skey == null)
+                {
+                    Console.ForegroundColor = ConsoleColor.DarkCyan;
+                    Console.WriteLine("      [+] Success - 'Custom' SubKey does not exist");
+                }
+                else
+                {
+                    var aSubKey = 0;
+                    foreach (String skeyName in skey.GetSubKeyNames())
+                    {
+                        Console.ForegroundColor = ConsoleColor.Red;
+                        Console.WriteLine("      [-] Custom SubKey Found! ");
+                        Console.ForegroundColor = ConsoleColor.DarkRed;
+                        Console.WriteLine("          " + skey + "\\" + skeyName);
+                        aSubKey = aSubKey + 1;
+                    }
+                    if (aSubKey == 0)
+                    {
+                        Console.ForegroundColor = ConsoleColor.DarkCyan;
+                        Console.WriteLine("      [+] Sucess - No SubKeys detected");
+                    }
+                }
+            }
+
+            String sdbKey = @"SOFTWARE\Microsoft\Windows NT\CurrentVersion\AppCompatFlags\InstalledSDB";
+            Console.ForegroundColor = ConsoleColor.Cyan;
+            Console.WriteLine("   [+] Checking 'InstalledSDB' SubKey entries");
+            using (Microsoft.Win32.RegistryKey ukey = Registry.LocalMachine.OpenSubKey(sdbKey))
+            {
+                if (ukey == null)
+                {
+                    Console.ForegroundColor = ConsoleColor.DarkCyan;
+                    Console.WriteLine("      [+] Success - 'InstalledSDB' SubKey does not exist");
+                }
+                else
+                {
+                    var uSubKey = 0;
+                    foreach (String ukeyName in ukey.GetSubKeyNames())
+                    {
+                        Console.ForegroundColor = ConsoleColor.Red;
+                        Console.WriteLine("      [-] InstalledSDB SubKey Found! ");
+                        Console.ForegroundColor = ConsoleColor.DarkRed;
+                        Console.WriteLine("          " + ukey + "\\" + ukeyName);
+                        uSubKey = uSubKey + 1;
+                    }
+                    if (uSubKey == 0)
+                    {
+                        Console.ForegroundColor = ConsoleColor.DarkCyan;
+                        Console.WriteLine("      [+] Sucess - No SubKeys detected");
+                    }
+                }
+            }
+        }
+
+
+            /// ////////////////////////////////////////////
+            /// ////////////////////////////////////////////     
+            /// ////    Codename: StormlightDinosaur    ////
+            /// ////////////////////////////////////////////
+            /// ////////////////////////////////////////////
+            static void Main(string[] args)
+            {
             Header();
             Console.ForegroundColor = ConsoleColor.Magenta;
             if (IsAdministrator() != true)
             { Console.Write("[!] NOT Running as Administrator! Results will be skewed!" + "\n"); }
 
+
             // LSASS
             Console.ForegroundColor = ConsoleColor.Green;
-            Console.Write("[+] Verifying basic lsass.exe integrity" + "\n");
+            Console.Write("[+] Verifying basic lsass.exe integrity - T1177" + "\n");
             EnumLsass();
+            Console.Write("\n");
 
             // Run Keys
             Console.ForegroundColor = ConsoleColor.Green;
-            Console.Write("[+] Checking RunKeys" + "\n");
+            Console.Write("[+] Checking RunKeys - T1060" + "\n");
             RunKeys();
             Console.Write("\n");
 
             // Startup Folder
             Console.ForegroundColor = ConsoleColor.Green;
-            Console.Write("[+] Checking Startup Folder" + "\n");
+            Console.Write("[+] Checking Startup Folder - T1060" + "\n");
             StartFolder();
             Console.Write("\n");
 
             // Services
             Console.ForegroundColor = ConsoleColor.Green;
-            Console.Write("[+] Checking Services" + "\n");
+            Console.Write("[+] Checking Services - T1050" + "\n");
             EvilServices();
             Console.Write("\n");
 
             // Scheduled Tasks
             Console.ForegroundColor = ConsoleColor.Green;
-            Console.Write("[+] Checking Scheduled Tasks" + "\n");
+            Console.Write("[+] Checking Scheduled Tasks - T1053" + "\n");
             Console.ForegroundColor = ConsoleColor.Cyan;
             Console.WriteLine("   [+] Searching Tasks that are utilizing unusual Binaries or Locations ");
             ParseScheduleTasks();
@@ -720,19 +945,31 @@ namespace StormlightDinosaur
 
             // BITS
             Console.ForegroundColor = ConsoleColor.Green;
-            Console.Write("[+] Checking BITS Jobs" + "\n");
+            Console.Write("[+] Checking BITS Jobs - T1197" + "\n");
             BitsJobs();
             Console.Write("\n");
 
             // WMI Event Subscriptions
             Console.ForegroundColor = ConsoleColor.Green;
-            Console.Write("[+] Checking WMI Event Subscriptions" + "\n");
+            Console.Write("[+] Checking WMI Event Subscriptions - T1084" + "\n");
             WmiSubs();
+            Console.Write("\n");
+
+            // IFEO
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.Write("[+] Checking Accessibility Abuse (IFEO) - T1183" + "\n");
+            IFEO();
+            Console.Write("\n");
+
+            // Application Shimming
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.Write("[+] Checking Application Shims - T1138" + "\n");
+            AppShims();
             Console.Write("\n");
 
             // NetSh DLL Helpers
             Console.ForegroundColor = ConsoleColor.Green;
-            Console.Write("[+] Checking Netsh DLL Helpers" + "\n");
+            Console.Write("[+] Checking Netsh DLL Helpers - T1128" + "\n");
             NethshHelpers();
             Console.Write("\n");
 
@@ -743,7 +980,7 @@ namespace StormlightDinosaur
             Console.ResetColor();
             //Console.ReadLine();
 
-        }
+            }
 
     }
 }
